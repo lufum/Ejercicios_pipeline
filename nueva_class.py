@@ -73,8 +73,8 @@ class miclase():
                               connect=True)
 
         for i in self.nom_assets:
-            name_=i
-            print (name_)
+            asset_name=i
+            print (asset_name)
 
             data={"project"     : {"type": "Project",  "id": 70},
                 #sg_sequence"   : {"type": "Sequence", "id": 41},
