@@ -1,3 +1,10 @@
+# Current version 
+# 1.0.0.1
+# 1 principal
+# 0.1 Actualizacion mayor
+# 0.0.1 Actualizacion menor
+# 0.0.0.1 Hotfix 
+
 # Ejercicios_pipeline
 Repo de prueba para familiarizarse con git y cargar ejercicios de pipeline
 
