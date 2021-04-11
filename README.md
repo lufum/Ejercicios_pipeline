@@ -23,7 +23,7 @@ git checkout your_branch
 git rebase master
 
 
-
+# Arte ninja, jutsu estilo de fuego
 git checkout master
 git merge --ff-only your_branch
 git push origin master
