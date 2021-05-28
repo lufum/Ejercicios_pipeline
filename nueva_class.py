@@ -10,7 +10,6 @@ class miclase():
         self.nom_assets = []
 
     def centrar (self, ob_ls):
-        
         for i in ob_ls:
             pymel.select(cl=1)
             pymel.select(i, add = 1)
@@ -27,7 +26,7 @@ class miclase():
             #move the object to the center of the scene
             pymel.move(pos1[0]*-1, pos1[1]*-1, pos1[2]*-1)
             #get the new bounding box position
-            pos2 = pymel.xform ( bb = 1, ws = 1, q = 1 )
+            pos2 = pymel.xform ( bb = 1, ws = 1, q = 1 )n
             #Freze transformations
             pymel.makeIdentity( apply=True, t=1, r=1, s=1)
             #move to the floor
