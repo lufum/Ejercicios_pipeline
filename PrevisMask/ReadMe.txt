@@ -7,6 +7,7 @@ Install instructions
 4) Run the next lines in the script editor
 
 import previsMask
+reload (previsMask)
 previs= previsMask.previsMask()
 
 optional
