@@ -9,6 +9,9 @@
 Repo de prueba para familiarizarse con git y cargar ejercicios de pipeline
 
 
+Edicion
+=======
+
 git checkout -b your_branch
 # Trabajamos y hacemos commits
 # git add <archivo>
