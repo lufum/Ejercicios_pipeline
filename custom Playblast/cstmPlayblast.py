@@ -17,13 +17,14 @@ class cstm_playblast():
         if cmds.window(self.win, exists = True):
             cmds.deleteUI(self.win, window = True)
         cmds.window(self.win, t = self.title, wh= self.size)
-        
         cmds.columnLayout(adjustableColumn = 1)
         cmds.separator(h=40)
         self.path_dir = cmds.textFieldGrp(l = "Save to", tx= self.in_path)
         cmds.separator(h=20)
         cmds.button( label='Set Path', command=(self.create_playblast))
         cmds.showWindow( self.win )
+        
+        self.sel = cmds.ls(sl = 1)
 
 
     def create_playblast(self, *args):
@@ -43,7 +44,7 @@ class cstm_playblast():
         """
 
         #name of the file
-        f_name = self.in_path +'/'+ file_.split('.')[0] 
+        f_name = self.in_path +'/'+ file_.split('.')[0]
         print (f_name)
 
         #playblast dimensions
@@ -55,7 +56,7 @@ class cstm_playblast():
         for mp in cmds.getPanel(type="modelPanel"):
             if cmds.modelEditor(mp, q=1, av=1):
                 cur_mp = mp
-        cur_cam= cmds.modelEditor(cur_mp, q=1, av =1, cam=1) 
+        cur_cam= cmds.modelEditor(cur_mp, q=1, av =1, cam=1)
         cur_cam= cmds.modelEditor('modelPanel4', q=1, av =1, cam=1)
         res_gate_attr= cmds.getAttr(cur_cam+'.filmFit')
         ovscn_attr=  cmds.getAttr(cur_cam+'.overscan')
@@ -65,9 +66,31 @@ class cstm_playblast():
         cmds.setAttr(cur_cam+'.filmFit', 3)
         cmds.setAttr(cur_cam+'.overscan', 1)
         cmds.setAttr(cur_cam+'.displayFilmGate', 0)
-        pb_=cmds.playblast(fmt= "qt", f= f_name, wh= [fr_width, fr_height], p= 100, cc= 1, v=1, c= "H.264", qlt=90, fo=1)
+        
+        #check for shots selected in the camera sequencer
+        if len(self.sel)>0 :
+            for i in self.sel:
+                if cmds.objectType(i) == 'shot':
+                    start_frame = cmds.getAttr("{}.startFrame".format(i))
+                    end_frame = cmds.getAttr("{}.endFrame".format(i))
+                    shot_cam = cmds.shot(i, cc = 1, q = 1)
+                    cmds.lookThru( shot_cam, cur_mp)
+                    cur_cam= cmds.modelEditor(cur_mp, q=1, av =1, cam=1)
+                    cur_cam= cmds.modelEditor('modelPanel4', q=1, av =1, cam=1)
+                    res_gate_attr= cmds.getAttr(cur_cam+'.filmFit')
+                    ovscn_attr=  cmds.getAttr(cur_cam+'.overscan')
+                    film_gate_attr=  cmds.getAttr(cur_cam+'.displayFilmGate')                                    
+                    f_name = self.in_path +'/'+ file_.split('.')[0]+'-'+i
+                    pb_=cmds.playblast(fmt= "qt", f= f_name, wh= [fr_width, fr_height], p= 100, cc= 1, v=1, c= "H.264", qlt=90, fo=1, st=start_frame, et=end_frame)
+                    cmds.setAttr(cur_cam+'.filmFit', res_gate_attr)
+                    cmds.setAttr(cur_cam+'.overscan', ovscn_attr)
+                    cmds.setAttr(cur_cam+'.displayFilmGate', film_gate_attr)
+                else:
+                    pass
+        else:
+            pb_=cmds.playblast(fmt= "qt", f= f_name, wh= [fr_width, fr_height], p= 100, cc= 1, v=1, c= "H.264", qlt=90, fo=1)
 
-        #return camera to previous state
-        cmds.setAttr(cur_cam+'.filmFit', res_gate_attr)
-        cmds.setAttr(cur_cam+'.overscan', ovscn_attr)
-        cmds.setAttr(cur_cam+'.displayFilmGate', film_gate_attr)
+            #return camera to previous state
+            cmds.setAttr(cur_cam+'.filmFit', res_gate_attr)
+            cmds.setAttr(cur_cam+'.overscan', ovscn_attr)
+            cmds.setAttr(cur_cam+'.displayFilmGate', film_gate_attr)
