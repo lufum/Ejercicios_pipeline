@@ -6,6 +6,7 @@ Install instructions
 3) Run the next lines in the script editor
 
 import cstmPlayblast
+reload (cstmPlayblast)
 pb= cstmPlayblast.cstm_playblast()
 
 optional
