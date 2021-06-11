@@ -130,4 +130,4 @@ class previsMask():
         year= str(fecha.year).zfill(2)
         hour= str(fecha.hour).zfill(2)+':'+str(fecha.minute).zfill(2)
         fecha_disp= year+'/'+month+'/'+day+' - '+hour
-        cmds.setAttr( "zshotmask_shape.topRightText", fecha_disp, type="string")l
+        cmds.setAttr( "zshotmask_shape.topRightText", fecha_disp, type="string")
