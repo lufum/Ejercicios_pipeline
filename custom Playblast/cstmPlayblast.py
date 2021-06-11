@@ -28,17 +28,17 @@ class cstm_playblast():
         cmds.separator(h=20)
         cmds.button( label='PLAYBLAST', command=(self.create_playblast))
         cmds.showWindow( self.win )
-        
+
         self.sel = cmds.ls(sl = 1)
 
 
     def create_playblast(self, *args):
-        
+
         self.in_path = cmds.textFieldGrp(self.path_dir, q=1, tx=1)
         self.qlt = float (cmds.textFieldGrp(self.qlt_field, q=1, tx=1))
         os_opt =  cmds.checkBox(self.check_os, q=1, v=1)
         cmds.deleteUI(self.win, window = True)
-        
+
         #get info for name
         file_=os.path.basename(cmds.file(q=True, sn=True))
         """
@@ -50,14 +50,14 @@ class cstm_playblast():
         fecha_disp= year+'_'+month+'_'+day+'--'+hour
         """
 
-        #name of the file
+        # name of the file
         f_name = self.in_path +'/'+ file_.split('.')[0]
 
-        #playblast dimensions
+        # playblast dimensions
         fr_width = 1920
         fr_height = 1080
-                
-        #camera Attributes
+
+        # camera Attributes
         cur_mp = ""
         for mp in cmds.getPanel(type="modelPanel"):
             if cmds.modelEditor(mp, q=1, av=1):
@@ -67,8 +67,7 @@ class cstm_playblast():
         ovscn_attr=  cmds.getAttr(cur_cam+'.overscan')
         film_gate_attr=  cmds.getAttr(cur_cam+'.displayFilmGate')
 
-
-        #check for shots selected in the camera sequencer
+        # check for shots selected in the camera sequencer
         pb_shots = False
         shots = []
         if len(self.sel)>0 :
@@ -81,6 +80,7 @@ class cstm_playblast():
                     pass
 
         if pb_shots == True:
+            print "---shots"
             for i in shots:
                 start_frame = cmds.getAttr("{}.startFrame".format(i))
                 end_frame = cmds.getAttr("{}.endFrame".format(i))
@@ -90,32 +90,52 @@ class cstm_playblast():
                 res_gate_attr= cmds.getAttr(cur_cam+'.filmFit')
                 ovscn_attr=  cmds.getAttr(cur_cam+'.overscan')
                 film_gate_attr=  cmds.getAttr(cur_cam+'.displayFilmGate')
-                con_list =  cmds.listConnections(cur_cam+ '.overscan')
-                if con_list:
-                    cur_cam = con_list[0]
-                cmds.setAttr(cur_cam+'.filmFit', 3)
-                cmds.setAttr(cur_cam+'.overscan', 1)
-                cmds.setAttr(cur_cam+'.displayFilmGate', 0)
+                change = False
+                while change == False:
+                    try:
+                        cmds.setAttr(cur_cam+'.filmFit', 3)
+                        cmds.setAttr(cur_cam+'.overscan', 1)
+                        cmds.setAttr(cur_cam+'.displayFilmGate', 0)
+                        change = True
+
+                    except:
+                        con_list =  cmds.listConnections(cur_cam+ '.overscan')
+                        cur_cam = con_list[0]
+
                 f_name = self.in_path +'/'+ file_.split('.')[0]+'-'+i
-                pb_=cmds.playblast(fmt= "qt", f= f_name, wh= [fr_width, fr_height], p= 100, cc= 1, v=1, c= "H.264", qlt=self.qlt, fo=1, st=start_frame, et=end_frame, os=os_opt)
+                cmds.playblast(fmt= "qt", f= f_name, wh= [fr_width, fr_height], p= 100, cc= 1, v=1, c= "H.264", qlt=self.qlt, fo=1, st=start_frame, et=end_frame, os=os_opt)
                 cmds.setAttr(cur_cam+'.filmFit', res_gate_attr)
                 cmds.setAttr(cur_cam+'.overscan', ovscn_attr)
                 cmds.setAttr(cur_cam+'.displayFilmGate', film_gate_attr)
-        
+
         else:
-            #set the camera and create the playblast
+            # check if the attributes are connected and set the camera and create the playblast
+            change = False
+            while change is False:
+                try:
+                    cmds.setAttr(cur_cam+'.filmFit', 3)
+                    cmds.setAttr(cur_cam+'.overscan', 1)
+                    cmds.setAttr(cur_cam+'.displayFilmGate', 0)
+                    print "---no error"                                            
+                    change = True
+                except:
+                    con_list =  cmds.listConnections(cur_cam+ '.overscan')
+                    cur_cam = con_list[0]
+                    print "---error"
+            """             
             con_list =  cmds.listConnections(cur_cam+ '.overscan')
-            
+            con = False
             if con_list:
+                con=True
                 cur_cam = con_list[0]
-            
+   
             cmds.setAttr(cur_cam+'.filmFit', 3)
             cmds.setAttr(cur_cam+'.overscan', 1)
-            cmds.setAttr(cur_cam+'.displayFilmGate', 0)
-        
-            pb_=cmds.playblast(fmt= "qt", f= f_name, wh= [fr_width, fr_height], p= 100, cc= 1, v=1, c= "H.264", qlt= self.qlt , fo=1, os=os_opt)
+            cmds.setAttr(cur_cam+'.displayFilmGate', 0) """
+
+            cmds.playblast(fmt= "qt", f= f_name, wh= [fr_width, fr_height], p= 100, cc= 1, v=1, c= "H.264", qlt= self.qlt , fo=1, os=os_opt)
 
             #return camera to previous state
             cmds.setAttr(cur_cam+'.filmFit', res_gate_attr)
             cmds.setAttr(cur_cam+'.overscan', ovscn_attr)
-            cmds.setAttr(cur_cam+'.displayFilmGate', film_gate_attr)
+            cmds.setAttr(cur_cam+'.displayFilmGate', film_gate_attr)        
