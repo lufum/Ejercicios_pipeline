@@ -1,11 +1,13 @@
 import maya.cmds as cmds
 import os
 import datetime
-
+import sys
+import subprocess
 
 class cstm_playblast():
     
     def __init__(self):
+        
         #self.create_playblast()
         full_path = cmds.file(q=True, sn=True)
         self.in_path = os.path.dirname(full_path)
@@ -116,12 +118,12 @@ class cstm_playblast():
                     cmds.setAttr(cur_cam+'.filmFit', 3)
                     cmds.setAttr(cur_cam+'.overscan', 1)
                     cmds.setAttr(cur_cam+'.displayFilmGate', 0)
-                    print "---no error"                                            
+                    #print "---no error"                                            
                     change = True
                 except:
                     con_list =  cmds.listConnections(cur_cam+ '.overscan')
                     cur_cam = con_list[0]
-                    print "---error"
+                    #print "---error"
             """             
             con_list =  cmds.listConnections(cur_cam+ '.overscan')
             con = False
@@ -132,10 +134,19 @@ class cstm_playblast():
             cmds.setAttr(cur_cam+'.filmFit', 3)
             cmds.setAttr(cur_cam+'.overscan', 1)
             cmds.setAttr(cur_cam+'.displayFilmGate', 0) """
+            temp_name = f_name + "-01"
 
-            cmds.playblast(fmt= "qt", f= f_name, wh= [fr_width, fr_height], p= 100, cc= 1, v=1, c= "H.264", qlt= self.qlt , fo=1, os=os_opt)
-
+            pb = cmds.playblast(fmt= "qt", f= temp_name, wh= [fr_width, fr_height], p= 100, cc= 1, v=0, c= "jpeg", qlt= self.qlt , fo=1, os=os_opt)
             #return camera to previous state
             cmds.setAttr(cur_cam+'.filmFit', res_gate_attr)
             cmds.setAttr(cur_cam+'.overscan', ovscn_attr)
             cmds.setAttr(cur_cam+'.displayFilmGate', film_gate_attr)        
+
+            ffmpeg_cmd = 'ffmpeg -y -i "{0}".mov'.format(pb)
+            ffmpeg_cmd += ' -c:v libx264 "{0}.mov"'.format(f_name)
+            
+            #print "---", pb
+
+            #print ffmpeg_cmd
+            subprocess.call(ffmpeg_cmd, shell= True)
+            os.remove(pb+".mov")
