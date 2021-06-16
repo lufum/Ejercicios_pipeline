@@ -51,7 +51,7 @@ class cstm_playblast():
         hour= str(fecha.hour)+'-'+str(fecha.minute)
         fecha_disp= year+'_'+month+'_'+day+'--'+hour
         """
-
+        os_sys = sys.platform
         # name of the file
         f_name = self.in_path +'/'+ file_.split('.')[0]
 
@@ -123,30 +123,37 @@ class cstm_playblast():
                 except:
                     con_list =  cmds.listConnections(cur_cam+ '.overscan')
                     cur_cam = con_list[0]
-                    #print "---error"
+                    #sprint "---error"
             """             
             con_list =  cmds.listConnections(cur_cam+ '.overscan')
             con = False
             if con_list:
                 con=True
                 cur_cam = con_list[0]
-   
+
             cmds.setAttr(cur_cam+'.filmFit', 3)
             cmds.setAttr(cur_cam+'.overscan', 1)
             cmds.setAttr(cur_cam+'.displayFilmGate', 0) """
-            temp_name = f_name + "-01"
 
-            pb = cmds.playblast(fmt= "qt", f= temp_name, wh= [fr_width, fr_height], p= 100, cc= 1, v=0, c= "jpeg", qlt= self.qlt , fo=1, os=os_opt)
+            if 'linux' in os_sys:
+                #print "\n --- Estas en Linux ---\n"
+                user_name=subprocess.check_output("whoami").split("\n")[0]
+                pb_name = file_.split('.')[0] + "temp"
+                final_name = file_.split('.')[0]
+                temp_name = '/home/{}/Desktop/{}'.format(user_name, pb_name)
+                print temp_name
+                temp_name2 = '/home/{}/Desktop/{}'.format(user_name, final_name)
+                print temp_name2
+                pb = cmds.playblast(fmt= "qt", f= temp_name, wh= [fr_width, fr_height], p= 100, cc= 1, v=0, c= "jpeg", qlt= self.qlt , fo=1, os=os_opt)
+                ffmpeg_cmd = 'ffmpeg -y -i "{0}".mov'.format(pb)
+                ffmpeg_cmd += ' -c:v libx264 "{0}.mov"'.format(temp_name2)
+                subprocess.call(ffmpeg_cmd, shell= True)
+                #os.remove(pb+".mov")
+            else:
+                #print "\n --- No estas en Linux ---\n"
+                pb = cmds.playblast(fmt= "qt", f= f_name, wh= [fr_width, fr_height], p= 100, cc= 1, v=0, c= "h.264", qlt= self.qlt , fo=1, os=os_opt)
+
             #return camera to previous state
             cmds.setAttr(cur_cam+'.filmFit', res_gate_attr)
             cmds.setAttr(cur_cam+'.overscan', ovscn_attr)
-            cmds.setAttr(cur_cam+'.displayFilmGate', film_gate_attr)        
-
-            ffmpeg_cmd = 'ffmpeg -y -i "{0}".mov'.format(pb)
-            ffmpeg_cmd += ' -c:v libx264 "{0}.mov"'.format(f_name)
-            
-            #print "---", pb
-
-            #print ffmpeg_cmd
-            subprocess.call(ffmpeg_cmd, shell= True)
-            os.remove(pb+".mov")
+            cmds.setAttr(cur_cam+'.displayFilmGate', film_gate_attr)

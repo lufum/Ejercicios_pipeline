@@ -15,6 +15,9 @@ class checks():
         self.y_errors = []
         self.f_errors = []
         self.uv_errors = []
+        self.shader_errors = []
+        self.shading_groups = []
+        self.surf_shaders = []
 
     def check_for_ngons(self):
         """
@@ -98,7 +101,7 @@ class checks():
     
     def check_uvs(self):
         objs = self.objs
-        errors = self.uv_errors[]
+        errors = self.uv_errors
         if objs:
             for i in objs:
                 uv_set = pm.polyUVSet(i, q=1, auv=1)
@@ -108,4 +111,33 @@ class checks():
                 else:
                     errors.append[i]
                     print "no UV set"
-            
+        else: 
+            print "No hay Geo"
+
+    def check_shaders(self):
+        objs = self.objs
+        sh_gps =  self.shading_groups
+        errors =  self.shader_errors
+        all_sgps = pm.ls(type='shadingEngine')
+        ignore_gps =  ["initialParticleSE", "initialShadingGroup", "lambert1", "materialInfo1"]
+        surf_shdrs = self.surf_shaders
+        for sg in all_sgps:
+            if sg not in ignore_gps:
+                if sg not in sh_gps:
+                    sh_gps.append(sg)
+                pm.hyperShade(o = sg)
+                conected_obj = pm.selected()[0].getParent()
+                pm.select(cl=1)
+                errors.append(conected_obj)
+                mat =pm.ls(pm.listConnections(sg), materials=1)[0]
+                if mat not in surf_shdrs:
+                    surf_shdrs.append(mat)
+        if errors:
+            print "\nLos siguientes objetos tienen un shader incorrecto: \n "
+            for o, s in zip(errors, surf_shdrs):
+                print "-", o, "---", s
+                
+
+                    
+                       
+                    
