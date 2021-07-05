@@ -124,16 +124,6 @@ class cstm_playblast():
                     con_list =  cmds.listConnections(cur_cam+ '.overscan')
                     cur_cam = con_list[0]
                     #sprint "---error"
-            """             
-            con_list =  cmds.listConnections(cur_cam+ '.overscan')
-            con = False
-            if con_list:
-                con=True
-                cur_cam = con_list[0]
-
-            cmds.setAttr(cur_cam+'.filmFit', 3)
-            cmds.setAttr(cur_cam+'.overscan', 1)
-            cmds.setAttr(cur_cam+'.displayFilmGate', 0) """
 
             if 'linux' in os_sys:
                 #print "\n --- Estas en Linux ---\n"
@@ -145,8 +135,8 @@ class cstm_playblast():
                 temp_name2 = '/home/{}/Desktop/{}'.format(user_name, final_name)
                 print temp_name2
                 pb = cmds.playblast(fmt= "qt", f= temp_name, wh= [fr_width, fr_height], p= 100, cc= 1, v=0, c= "jpeg", qlt= self.qlt , fo=1, os=os_opt)
-                ffmpeg_cmd = 'ffmpeg -y -i "{0}".mov'.format(pb)
-                ffmpeg_cmd += ' -c:v libx264 "{0}.mov"'.format(temp_name2)
+                ffmpeg_cmd = 'ffmpeg -y -framerate 30 -i "{0}".mov'.format(pb)
+                ffmpeg_cmd += ' -c:v libx264 -crf 17 "{0}.mov"'.format(temp_name2)
                 subprocess.call(ffmpeg_cmd, shell= True)
                 #os.remove(pb+".mov")
             else:
