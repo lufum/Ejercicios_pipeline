@@ -78,7 +78,7 @@ class checks():
     def check_freeze(self):
         objs = self.geo
         errors = self.f_errors
-   
+
         for i in objs:
             trans_val = list(i.translate.get())
             rot_val = list(i.rotate.get())
@@ -90,7 +90,7 @@ class checks():
                     if i not in errors:
                         errors.append(i)
                         print '\n >>>', i, " necesita freezear trasnformaciones"
-    
+
     def freeze_objs(self):
         objs = self.f_errors
         if objs:
@@ -98,7 +98,7 @@ class checks():
                 pm.makeIdentity(i, apply=True, t=1, r=1, s=1)
         else:
             print "no freeze errors"
-    
+
     def check_uvs(self):
         objs = self.objs
         errors = self.uv_errors
@@ -119,7 +119,8 @@ class checks():
         sh_gps =  self.shading_groups
         errors =  self.shader_errors
         all_sgps = pm.ls(type='shadingEngine')
-        ignore_gps =  ["initialParticleSE", "initialShadingGroup", "lambert1", "materialInfo1"]
+        ignore_gps =  ["initialParticleSE", "initialShadingGroup", "lambert1",
+                       "initialMaterialInfo", "materialInfo1"]
         surf_shdrs = self.surf_shaders
         for sg in all_sgps:
             if sg not in ignore_gps:
@@ -133,11 +134,13 @@ class checks():
                 if mat not in surf_shdrs:
                     surf_shdrs.append(mat)
         if errors:
+            
             print "\nLos siguientes objetos tienen un shader incorrecto: \n "
             for o, s in zip(errors, surf_shdrs):
                 print "-", o, "---", s
+            
+            for err in errors:
+                pm.select(cl = 1)
+                pm.select(err ,add= 1)
+                pm.sets(e=1, fe='initialShadingGroup')
                 
-
-                    
-                       
-                    
